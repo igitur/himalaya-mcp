@@ -217,10 +217,19 @@ export class HimalayaClient {
     return this.exec(args, { folder: f, account, trailingArgs: tokens });
   }
 
-  /** Read a message body (plain text). */
-  async readMessage(id: string, folder?: string, account?: string): Promise<string> {
+  /** Read a message body (plain text).
+   *
+   * By default, passes `--preview` so the `\\Seen` flag is NOT set.
+   * Set `markAsSeen=true` to apply the `\\Seen` flag (normal IMAP
+   * behaviour for human email clients).
+   */
+  async readMessage(id: string, folder?: string, account?: string, markAsSeen?: boolean): Promise<string> {
     assertSafeArg(id, "id");
-    const args = ["message", "read", id];
+    const args = ["message", "read"];
+    if (!markAsSeen) {
+      args.push("--preview");
+    }
+    args.push(id);
     const f = this.applyFolderArg(args, folder);
     return this.exec(args, { folder: f, account });
   }
@@ -230,8 +239,11 @@ export class HimalayaClient {
    * himalaya v1.2.0 removed the --html flag from `message read`.
    * Instead, use `message export` (without --full) which exports
    * MIME parts as separate files: index.html for HTML, plain.txt for text.
+   *
+   * The `markAsSeen` parameter is accepted for API consistency but
+   * has no effect — `message export` does not support `--preview`.
    */
-  async readMessageHtml(id: string, folder?: string, account?: string): Promise<string> {
+  async readMessageHtml(id: string, folder?: string, account?: string, markAsSeen?: boolean): Promise<string> {
     assertSafeArg(id, "id");
     const tmpDir = mkdtempSync(join(tmpdir(), "himalaya-mcp-html-"));
     try {
@@ -241,7 +253,6 @@ export class HimalayaClient {
         args.push("--folder", f);
       }
       args.push("--destination", tmpDir, id);
-      // Note: exec() already appends --account and --output json
       await this.exec(args, { folder: f, account });
       const htmlPath = join(tmpDir, "index.html");
       return readFileSync(htmlPath, "utf-8");

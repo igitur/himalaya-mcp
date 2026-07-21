@@ -276,7 +276,7 @@ describe("Dogfooding: read_email", () => {
     const tool = getToolHandler(server, "read_email");
     await tool.handler({ id: "123", folder: "Archive", account: undefined }, {} as any);
 
-    expect(client.readMessage).toHaveBeenCalledWith("123", "Archive", undefined);
+    expect(client.readMessage).toHaveBeenCalledWith("123", "Archive", undefined, undefined);
   });
 });
 
