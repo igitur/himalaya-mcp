@@ -200,18 +200,36 @@ export class HimalayaClient {
     return this.exec(args, { folder: f, account });
   }
 
-  /** Read a message body (plain text). */
-  async readMessage(id: string, folder?: string, account?: string): Promise<string> {
+  /** Read a message body (plain text).
+   *
+   * By default, passes `--preview` so the `\\Seen` flag is NOT set.
+   * Set `markAsSeen=true` to apply the `\\Seen` flag (normal IMAP
+   * behaviour for human email clients).
+   */
+  async readMessage(id: string, folder?: string, account?: string, markAsSeen?: boolean): Promise<string> {
     assertSafeArg(id, "id");
-    const args = ["message", "read", id];
+    const args = ["message", "read"];
+    if (!markAsSeen) {
+      args.push("--preview");
+    }
+    args.push(id);
     const f = this.applyFolderArg(args, folder);
     return this.exec(args, { folder: f, account });
   }
 
-  /** Read a message body (HTML). */
-  async readMessageHtml(id: string, folder?: string, account?: string): Promise<string> {
+  /** Read a message body (HTML).
+   *
+   * By default, passes `--preview` so the `\\Seen` flag is NOT set.
+   * Set `markAsSeen=true` to apply the `\\Seen` flag.
+   */
+  async readMessageHtml(id: string, folder?: string, account?: string, markAsSeen?: boolean): Promise<string> {
     assertSafeArg(id, "id");
-    const args = ["message", "read", "--html", id];
+    const args = ["message", "read"];
+    if (!markAsSeen) {
+      args.push("--preview");
+    }
+    args.push("--html");
+    args.push(id);
     const f = this.applyFolderArg(args, folder);
     return this.exec(args, { folder: f, account });
   }

@@ -4,6 +4,8 @@
  * Renders an email body as clean markdown. For HTML emails,
  * converts HTML to markdown using node-html-markdown. For
  * plain text emails, returns the body as-is.
+ *
+ * By default does NOT mark as read (uses --preview).
  */
 
 import { z } from "zod/v4";
@@ -14,16 +16,17 @@ import { parseMessageBody } from "../himalaya/parser.js";
 
 export function registerRenderTools(server: McpServer, client: HimalayaClient) {
   server.registerTool("render_email", {
-    description: "Read an email body rendered as clean markdown. For HTML emails, converts to markdown for a clean reading experience. For plain text emails, returns the body as-is.",
+    description: "Read an email body rendered as clean markdown. For HTML emails, converts to markdown for a clean reading experience. For plain text emails, returns the body as-is. By default does NOT mark as read (uses --preview).",
     inputSchema: {
       id: z.string().describe("Email message ID"),
       folder: z.string().optional().describe("Folder name (default: INBOX)"),
       account: z.string().optional().describe("Account name (uses default if omitted)"),
+      mark_as_seen: z.boolean().optional().default(false).describe("Set to true to mark the email as read. Default false (safe, non-destructive)."),
     },
   }, async (args) => {
     try {
       // Try HTML first — parse the JSON-quoted HTML body
-      const htmlRaw = await client.readMessageHtml(args.id, args.folder, args.account);
+      const htmlRaw = await client.readMessageHtml(args.id, args.folder, args.account, args.mark_as_seen);
       const htmlResult = parseMessageBody(htmlRaw);
       if (htmlResult.ok && htmlResult.data && htmlResult.data.length > 0) {
         const { NodeHtmlMarkdown } = await import("node-html-markdown");
@@ -34,7 +37,7 @@ export function registerRenderTools(server: McpServer, client: HimalayaClient) {
       }
 
       // Fallback to plain text
-      const textRaw = await client.readMessage(args.id, args.folder, args.account);
+      const textRaw = await client.readMessage(args.id, args.folder, args.account, args.mark_as_seen);
       const result = parseMessageBody(textRaw);
       if (!result.ok) {
         return {
