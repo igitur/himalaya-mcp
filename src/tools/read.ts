@@ -11,15 +11,16 @@ import { envelopeError } from "./_envelope.js";
 
 export function registerReadTools(server: McpServer, client: HimalayaClient) {
   server.registerTool("read_email", {
-    description: "Read an email message body (plain text). Use the ID from list_emails or search_emails.",
+    description: "Read an email message body (plain text). Use the ID from list_emails or search_emails. By default does NOT mark as read (uses --preview).",
     inputSchema: {
       id: z.string().describe("Email message ID"),
       folder: z.string().optional().describe("Folder name (default: INBOX)"),
       account: z.string().optional().describe("Account name (uses default if omitted)"),
+      mark_as_seen: z.boolean().optional().default(false).describe("Set to true to mark the email as read (set \\Seen flag). Default false (safe, non-destructive)."),
     },
   }, async (args) => {
     try {
-      const raw = await client.readMessage(args.id, args.folder, args.account);
+      const raw = await client.readMessage(args.id, args.folder, args.account, args.mark_as_seen);
       const result = parseMessageBody(raw);
 
       if (!result.ok) {
@@ -38,15 +39,16 @@ export function registerReadTools(server: McpServer, client: HimalayaClient) {
   });
 
   server.registerTool("read_email_html", {
-    description: "Read an email message body as HTML. Useful for formatted emails.",
+    description: "Read an email message body as HTML. Useful for formatted emails. By default does NOT mark as read (uses --preview).",
     inputSchema: {
       id: z.string().describe("Email message ID"),
       folder: z.string().optional().describe("Folder name (default: INBOX)"),
       account: z.string().optional().describe("Account name (uses default if omitted)"),
+      mark_as_seen: z.boolean().optional().default(false).describe("Set to true to mark the email as read (set \\Seen flag). Default false (safe, non-destructive)."),
     },
   }, async (args) => {
     try {
-      const raw = await client.readMessageHtml(args.id, args.folder, args.account);
+      const raw = await client.readMessageHtml(args.id, args.folder, args.account, args.mark_as_seen);
       const result = parseMessageBody(raw);
 
       if (!result.ok) {

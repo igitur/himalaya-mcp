@@ -79,19 +79,19 @@
     },
     {
       "name": "read_email",
-      "description": "Read an email message body (plain text). Use the ID from list_emails or search_emails."
+      "description": "Read an email message body (plain text). Use the ID from list_emails or search_emails. By default does NOT mark as read (uses --preview)."
     },
     {
       "name": "read_email_html",
-      "description": "Read an email message body as HTML. Useful for formatted emails."
+      "description": "Read an email message body as HTML. Useful for formatted emails. By default does NOT mark as read (uses --preview)."
     },
     {
       "name": "read_email_raw",
-      "description": "Read the raw MIME source of an email. Returns the full, unedited message including all headers. Useful for debugging and email forensics."
+      "description": "Read the raw MIME source of an email. Returns the full, unedited message including all headers. Useful for debugging, email forensics, and exporting to .eml format. Note: mark_as_seen does not apply \u2014 message export never touches the \\Seen flag."
     },
     {
       "name": "render_email",
-      "description": "Read an email body rendered as clean markdown. For HTML emails, converts to markdown for a clean reading experience. For plain text emails, returns the body as-is."
+      "description": "Read an email body rendered as clean markdown. For HTML emails, converts to markdown for a clean reading experience. For plain text emails, returns the body as-is. By default does NOT mark as read (uses --preview)."
     },
     {
       "name": "flag_email",

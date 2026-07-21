@@ -52,8 +52,8 @@ describe("render_email", () => {
     const handler = (server.registerTool as ReturnType<typeof vi.fn>).mock.calls[0][2];
     await handler({ id: "123", folder: "Archive", account: "work" });
 
-    expect(client.readMessageHtml).toHaveBeenCalledWith("123", "Archive", "work");
-    expect(client.readMessage).toHaveBeenCalledWith("123", "Archive", "work");
+    expect(client.readMessageHtml).toHaveBeenCalledWith("123", "Archive", "work", undefined);
+    expect(client.readMessage).toHaveBeenCalledWith("123", "Archive", "work", undefined);
   });
 
   it("returns isError when readMessageHtml and readMessage both fail", async () => {

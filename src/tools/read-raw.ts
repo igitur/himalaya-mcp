@@ -4,6 +4,9 @@
  * Returns the raw MIME source of an email using himalaya's
  * `message export --full` command, which exports the raw,
  * unedited message as a .eml file.
+ *
+ * Note: `mark_as_seen` does not apply to raw export — the
+ * `message export` command does not touch the \Seen flag.
  */
 
 import { z } from "zod/v4";
@@ -16,11 +19,12 @@ import { envelopeError } from "./_envelope.js";
 
 export function registerReadRawTools(server: McpServer, client: HimalayaClient) {
   server.registerTool("read_email_raw", {
-    description: "Read the raw MIME source of an email. Returns the full, unedited message including all headers. Useful for debugging, email forensics, and exporting to .eml format.",
+    description: "Read the raw MIME source of an email. Returns the full, unedited message including all headers. Useful for debugging, email forensics, and exporting to .eml format. Note: mark_as_seen does not apply — message export never touches the \\Seen flag.",
     inputSchema: {
       id: z.string().describe("Email message ID"),
       folder: z.string().optional().describe("Folder name (default: INBOX)"),
       account: z.string().optional().describe("Account name (uses default if omitted)"),
+      mark_as_seen: z.boolean().optional().default(false).describe("Ignored for raw export — message export never marks as read."),
     },
   }, async (args) => {
     const tmpDir = mkdtempSync(join(tmpdir(), "himalaya-mcp-raw-"));
